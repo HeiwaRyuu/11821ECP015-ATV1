@@ -1,19 +1,24 @@
 # Nome do nosso compilador (C Compiler)
 CC = arm-none-eabi-gcc
 # Definindo as flags de compilação
-CFLAGS = -c -mcpu=cortex-m4 -mthumb
+CFLAGS = -c -mcpu=cortex-m4 -mthumb -Wall -O0
 
 # Aqui estamos criando o comando "all" no qual ao chamarmos "make all", ele irá compilar todos os nomes que se encontram abaixo
-# de uma só vez, sem haver a necessidade de compilarmos cada um separadamente
+# de uma só vez, sem haver a necessidade de compilarmos cada um separadamente.
 all: startup.o main.o
 
 # Aqui CC é o nome do nosso compilador, CFLAGS são as flags que serão utilizadas e $< representa o primeiro elemento da lista de 
 # pré requisitos, e a variável $@ representa o alvo da regra (nosso target)
-main.o:main.c
-	$(CC) $(CFLAGS) -o $@ $^
+# main.o:main.c
+# 	$(CC) $(CFLAGS) -o $@ $^
 
 
-startup.o:startup.c
+# startup.o:startup.c
+# 	$(CC) $(CFLAGS) -o $@ $^
+
+# Adicionando regra única para o make com o caracter "%", que automaticamente substitui cada um dos itens em "all" e executa a regra
+# de compilação abaixo
+%.o:%.c
 	$(CC) $(CFLAGS) -o $@ $^
 
 
