@@ -1,4 +1,5 @@
-Primeira atividade SEMB1 UFU - 11821ECP015
+Aluno: Vítor Carvalho Marx Lima - 11821ECP015
+Primeira atividade SEMB1 UFU
 
 Primeiramente intalei Ubuntu 20.04 para utilizar no WSL2 através do Windows PowerShell, 
 configurei meu usuário e senha e atualizei o sistema operacional com "sudo apt update"
