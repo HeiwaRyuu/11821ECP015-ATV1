@@ -1,8 +1,4 @@
-Aluno: Vítor Carvalho Marx Lima
-Matrícula: 11821ECP015
-Primeira atividade SEMB1 UFU
-
-Descrição das etapas realizadas durante a atividade:
+Primeira atividade SEMB1 UFU - 11821ECP015
 
 Primeiramente intalei Ubuntu 20.04 para utilizar no WSL2 através do Windows PowerShell, 
 configurei meu usuário e senha e atualizei o sistema operacional com "sudo apt update"
@@ -78,10 +74,30 @@ default_handler e seja usada no lugar dela.
 
 Em seguida, defini as ações que a função reset_handler deve realizar: copiar os dados da seção .data para a SRAM, preencher com zeros a seção .bss e por fim, chamar a função main().
 Para realizar essas tarefas, é necessário conhecer o início e o fim das seções .data e .bss. Neste arquivo elas serão definidas como variáveis externas, já que no processo de linkedição
-essas informações estão disponíveis.
+essas informações estão disponíveis. Copiar os dados da seção .data para a memória SRAM é bastante simples, basta iterarmos por toda a seção na memória FLASH e copiar os dados para o endereço 
+de destino na memória SRAM. Da mesma forma, para escrever zero na seçao .bss iremos iterar por toda a seção na SRAM escrevendo zero em cada posição. Ao final deste processo basta chamar a função main().
 
 Após a criação destas etapas no arquivo startup.c, adicionei ele como um arquivo que deve ser compilado ao arquivo Makefile, para que seja gerado o arquivo "startup.o".
 
+Após a finalização do arquivo startup.c, criei o programa para piscar o LED e escrevi o linker script. Para desenvolver o programa para piscar o LED deve-se determinar em qual pino o LED está conectado e que qual
+o valor que deve-se atribuir a este pino para ligar/desligar o LED. É possível ver que na esquemática, o pino conectado ao LED é o 13 da porta C, e que ao colocar este pino em nível 0, liga-se o LED. Também é necessário
+ligar o clock da porta C, já que por padrão ele vem desligado para economizar energia.
+Para ligar o clock da porta C, fiz uso do periférico Reset and Clock Control (RCC), que neste caso é ligado ao barramento AHB1. Para ligar o clock do nosso GPIOC, ajusta-se o bit 2 do registrador RCC_AHB1ENR para 1.
+Defini o endereço base de cada um dos periféricos que serão utilizados, justamente para calcularmos seu devido offset e alterar somente os endereços de memória que desejamos. Alterei o pino PC13 para trabalhar como um
+pino de saída, para que o LED possa ser acionado, com saída "push-pull", sem capacidade de pull-up ou pull-down.
+
+Depois de configurar o pino da maneira correta para que o LED possa ser recrutado, alterei o estado do pino de saída através do port bit set/reset register, que permite alterar somente o pino desejado, ao invés de ter
+que alterar o estado de todos os outros pinos, e depois reescrever no registrador somente o pino alterado, que daria muito mais trabalho. Além disso, criei uma variável global que indica o status do led, ou seja, altera
+seu estado de ligado para desligado, e vice e versa. Adicionei também um vetor estático constante que representa a versão do programa, V1.0, já que essa variável não deve ser alterada de maneira alguma.
+
+Em seguida, desenvolvi o arquivo linker script, que resolverá a parte de combinar os arquivos objetos em um único arquivo executável. Aqui todas as seções dos arquivos objetos de entrada são mapeadas e é aonde controla-se
+o layout da memória no arquivo de saída. Defini o ponto de entrada do nosso linker script como sendo a nossa função reset_handler, defino as seções de memória e suas informações, como as permissões de escrita/leitura, endereço
+de início, e comprimento. Em seguida, criei as diferentes seções de saída do arquivo, e suas características. É aqui que intruí que o vetor de interrupções armazenado na seção .isr_vector deve ser armazenado na flash em conjunto
+com outras seções. Defini também que a seção data deve ser gravada na memória SRAM e também na flash, para evitar que seus valores sejam alterador durante a compilação e criação do executável final. E armazenei a seção .bss
+somente na SRAM. O último passo foi exportar as variáveis utilizadas como variáveis externas no startup.c, e aqui temos acesso, sendo elas os endereços de início e fim das seções .data e .bss e forçar que o acesso a memória seja
+realizado de 4 em 4 bytes para alinhar a memória corretamente através da função "ALIGN(4)", aonde o número 4 representa o número de bytes que deve ser alinhado em cada operação.
+
+Finalmente, após a criação do linker script, modifiquei pela última vez o arquivo Makefile, adicionando novas variáveis, para armazenar o nome do linker e as opções de linkedição.
 
 
 
