@@ -199,7 +199,6 @@ uint32_t vectors[] __attribute__((section(".isr_vectors"))) =
     0,                                                  /* 0x0000 018C */
     (uint32_t)spi4_handler,                                                  /* 0x0000 0190 */
     (uint32_t)spi5_handler,                             /* 0x0000 0194 */
-    0,                                                  /* 0x0000 0198 */
 };
 
 
